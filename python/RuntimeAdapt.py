@@ -42,7 +42,7 @@ if  (runTime == "DLL") and (mode == "Release"):
 
 if  (runTime == "DLL") and (mode == "Debug"):
     toAdd = [" /MDd", " /Od" ]
-    toRemove = [" /MT", " /MTd", " /Md", " /O2"]
+    toRemove = [" /MT", " /MTd", " /MD", " /O2"]
 
 if  (runTime == "NoDLL") and (mode == "Release"):
     toAdd = [" /MT", " /O2" ]
@@ -50,7 +50,7 @@ if  (runTime == "NoDLL") and (mode == "Release"):
 
 if  (runTime == "NoDLL") and (mode == "Debug"):
     toAdd = [" /MTd", " /Od" ]
-    toRemove = [" /MT", " /MDd", " /Md", " /O2"]    
+    toRemove = [" /MT", " /MDd", " /MD", " /O2"]    
 
 # get list of all files
 listFiles = [val for sublist in [[os.path.join(i[0], j) for j in i[2]if j.endswith('.ninja')] for i in os.walk(workfolder)] for val in sublist]
@@ -60,7 +60,7 @@ for ninjaFile in listFiles:
     f = open(ninjaFile, "r+")
     fileOut = open(ninjaFile+"1", "w+")
     for line in f:
-        if "cflag" in line:
+        if "cflag" in line and not "{cflags}" in line:
             print "found in " + ninjaFile 
             print "before :" + line
             for option in toRemove:
@@ -70,10 +70,8 @@ for ninjaFile in listFiles:
             for option in toAdd:
                 if option not in line:
                     print "adding :" + option
-                    line = line.rstrip() + option
+                    line = line.rstrip() + option + "\n"
             print "after :" + line
-            fileOut.write(line)
-            break
         fileOut.write(line)
     f.close()
     fileOut.close()
